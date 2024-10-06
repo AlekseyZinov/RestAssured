@@ -13,15 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RestTestWebService {
-    public RequestSpecification requestSpecification;
-
-    @BeforeAll
-    public void setUp() {
-        requestSpecification = RestAssured
-                .given()
-                .baseUri("http://localhost:8080")
-                .accept(ContentType.JSON);
-    }
 
     int id1 = 1;
     int id2 = 2;
@@ -54,7 +45,7 @@ public class RestTestWebService {
     }
 
     @SneakyThrows
-    public Student addStudent (String name, List<Integer> marks){
+    public Student addStudent(String name, List<Integer> marks) {
         Student st = new Student();
         st.setName(name);
         st.setMarks(marks);
@@ -71,7 +62,7 @@ public class RestTestWebService {
     }
 
     @SneakyThrows
-    public Student addStudent (int id, List<Integer> marks){
+    public Student addStudent(int id, List<Integer> marks) {
         Student st = new Student();
         st.setId(id);
         st.setMarks(marks);
@@ -87,7 +78,7 @@ public class RestTestWebService {
     }
 
     @SneakyThrows
-    public Student addStudent (int id, String name, List<Integer> marks){
+    public Student addStudent(int id, String name, List<Integer> marks) {
         Student st = new Student();
         st.setId(id);
         st.setName(name);
@@ -103,7 +94,7 @@ public class RestTestWebService {
         return st;
     }
 
-    public void deleteStudent (int id) {
+    public void deleteStudent(int id) {
         RestAssured.given()
                 .baseUri("http://localhost:8080/student/" + id)
                 .contentType(ContentType.JSON)
@@ -135,8 +126,8 @@ public class RestTestWebService {
     @SneakyThrows
     public void test2NonExistingStudent() {
         int id = -1;
-        RestAssured.given(requestSpecification)
-                .basePath("/student/" + id)
+        RestAssured.given()
+                .baseUri("http://localhost:8080/student/" + id)
                 .contentType(ContentType.JSON)
                 .when()
                 .get()
@@ -144,8 +135,9 @@ public class RestTestWebService {
                 .statusCode(404);
     }
 
-    @Test @SneakyThrows
-    public void test3AddStudentWithIDAndName () {
+    @Test
+    @SneakyThrows
+    public void test3AddStudentWithIDAndName() {
         Student st = addStudent(id1, vasya, marks1);
         int id = st.getId();
         ObjectMapper mapper = new ObjectMapper();
@@ -160,8 +152,9 @@ public class RestTestWebService {
         deleteStudent(id);
     }
 
-    @Test @SneakyThrows
-    public void test4UpdateStudentWithIDAndName4 () {
+    @Test
+    @SneakyThrows
+    public void test4UpdateStudentWithIDAndName4() {
         Student st1 = addStudent(1, vasya, marks1);
         Student st2 = addStudent(1, petya, marks1);
         ObjectMapper mapper = new ObjectMapper();
@@ -174,13 +167,14 @@ public class RestTestWebService {
                 .then()
                 .statusCode(201);
         Student st3 = getStudent(st2.getId());
-        Assert.assertEquals(st3.getId(),st1.getId());
-        Assert.assertEquals(st3.getName(),st2.getName());
+        Assert.assertEquals(st3.getId(), st1.getId());
+        Assert.assertEquals(st3.getName(), st2.getName());
         deleteStudent(st2.getId());
     }
 
-    @Test @SneakyThrows
-    public void test5AddStudentWithoutID () {
+    @Test
+    @SneakyThrows
+    public void test5AddStudentWithoutID() {
         Student st = new Student();
         st.setName(vasya);
         st.setMarks(marks1);
@@ -212,8 +206,9 @@ public class RestTestWebService {
                 .statusCode(400);
     }
 
-    @Test @SneakyThrows
-    public void test7DeleteExistingStudent () {
+    @Test
+    @SneakyThrows
+    public void test7DeleteExistingStudent() {
         Student st = addStudent(id1, vasya, marks1);
         int id = st.getId();
         RestAssured.given()
@@ -226,8 +221,9 @@ public class RestTestWebService {
         deleteStudent(id);
     }
 
-    @Test @SneakyThrows
-    public void test8DeleteNonExistingStudent () {
+    @Test
+    @SneakyThrows
+    public void test8DeleteNonExistingStudent() {
         int id = -1;
         RestAssured.given()
                 .baseUri("http://localhost:8080/student/" + id)
@@ -238,8 +234,9 @@ public class RestTestWebService {
                 .statusCode(404);
     }
 
-    @Test @SneakyThrows
-    public void test9GetTopStudent () {
+    @Test
+    @SneakyThrows
+    public void test9GetTopStudent() {
         String str = RestAssured.given()
                 .baseUri("http://localhost:8080/topStudent")
                 .contentType(ContentType.JSON)
@@ -251,7 +248,8 @@ public class RestTestWebService {
         Assert.assertEquals(str, "");
     }
 
-    @Test @SneakyThrows
+    @Test
+    @SneakyThrows
     public void test10GetTopStudent() {
         Student st1 = addStudent(id1, vasya, marksNull);
         String str = RestAssured.given()
@@ -266,27 +264,29 @@ public class RestTestWebService {
         deleteStudent(st1.getId());
     }
 
-    @Test @SneakyThrows
-    public void test11GetTopStudent () {
+    @Test
+    @SneakyThrows
+    public void test11GetTopStudent() {
         Student st1 = addStudent(id1, vasya, marks1);
         Student st2 = addStudent(id2, petya, marks4);
         Student st3 = addStudent(id3, masha, marks3);
-        List<Student> students =  RestAssured.given()
+        List<Student> students = RestAssured.given()
                 .baseUri("http://localhost:8080/topStudent")
                 .contentType(ContentType.JSON)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
-                .extract().jsonPath().getList("",Student.class);
-        Assert.assertEquals(students.size(),1);
+                .extract().jsonPath().getList("", Student.class);
+        Assert.assertEquals(students.size(), 1);
         deleteStudent(st1.getId());
         deleteStudent(st2.getId());
         deleteStudent(st3.getId());
     }
 
-    @Test @SneakyThrows
-    public void test12ingGetTopStudents () {
+    @Test
+    @SneakyThrows
+    public void test12ingGetTopStudents() {
         Student st1 = addStudent(id1, vasya, marks4);
         Student st2 = addStudent(id2, petya, marks4);
         Student st3 = addStudent(id3, masha, marks3);
