@@ -4,10 +4,13 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.SneakyThrows;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +20,7 @@ public class RestTestWebService {
     int id1 = 1;
     int id2 = 2;
     int id3 = 3;
+    int id4 = 4;
 
     String vasya = "Vasya";
     String petya = "Petya";
@@ -103,6 +107,17 @@ public class RestTestWebService {
                 .then();
     }
 
+    @After
+    public void clean () {
+        deleteStudent(id1);
+        deleteStudent(id2);
+        deleteStudent(id3);
+        deleteStudent(id4);
+        deleteStudent(5);
+        deleteStudent(6);
+        deleteStudent(7);
+    }
+
     @Test
     @SneakyThrows
     public void test1ExistingStudent() {
@@ -119,7 +134,6 @@ public class RestTestWebService {
                 .body("id", Matchers.equalTo(id))
                 .body("name", Matchers.equalTo(name))
                 .extract().as(Student.class);
-        deleteStudent(id);
     }
 
     @Test
@@ -149,7 +163,6 @@ public class RestTestWebService {
                 .post()
                 .then()
                 .statusCode(201);
-        deleteStudent(id);
     }
 
     @Test
@@ -169,7 +182,6 @@ public class RestTestWebService {
         Student st3 = getStudent(st2.getId());
         Assert.assertEquals(st3.getId(), st1.getId());
         Assert.assertEquals(st3.getName(), st2.getName());
-        deleteStudent(st2.getId());
     }
 
     @Test
@@ -218,7 +230,6 @@ public class RestTestWebService {
                 .delete()
                 .then()
                 .statusCode(200);
-        deleteStudent(id);
     }
 
     @Test
@@ -261,7 +272,6 @@ public class RestTestWebService {
                 .statusCode(200)
                 .extract().asString();
         Assert.assertEquals(str, "");
-        deleteStudent(st1.getId());
     }
 
     @Test
@@ -279,9 +289,6 @@ public class RestTestWebService {
                 .statusCode(200)
                 .extract().jsonPath().getList("", Student.class);
         Assert.assertEquals(students.size(), 1);
-        deleteStudent(st1.getId());
-        deleteStudent(st2.getId());
-        deleteStudent(st3.getId());
     }
 
     @Test
@@ -290,6 +297,7 @@ public class RestTestWebService {
         Student st1 = addStudent(id1, vasya, marks4);
         Student st2 = addStudent(id2, petya, marks4);
         Student st3 = addStudent(id3, masha, marks3);
+        Student st4 = addStudent(id4, masha, marks1);
         List<Student> students = RestAssured.given()
                 .baseUri("http://localhost:8080/topStudent")
                 .contentType(ContentType.JSON)
@@ -298,9 +306,7 @@ public class RestTestWebService {
                 .then()
                 .statusCode(200)
                 .extract().jsonPath().getList("", Student.class);
+        System.out.println(students);
         Assert.assertEquals(students.size(), 2);
-        deleteStudent(st1.getId());
-        deleteStudent(st2.getId());
-        deleteStudent(st3.getId());
     }
 }
